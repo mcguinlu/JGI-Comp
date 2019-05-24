@@ -7,7 +7,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
-data <- read.csv("final_data.csv", header = TRUE)
+data <- read.csv("../data/final_data.csv", header = TRUE)
 ```
 
 #### Loneliness appears tp be increasing over the three years
