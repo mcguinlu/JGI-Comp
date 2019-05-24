@@ -1,1 +1,1 @@
-# JGI-Cmp
+# JGI-Comp
