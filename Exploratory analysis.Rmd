@@ -1,0 +1,91 @@
+---
+title: "Descriptive analysis based on the `final_data` dataset"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+data <- read.csv("final_data.csv", header = TRUE)
+```
+
+#### Loneliness appears tp be increasing over the three years
+```{r}
+  data_lonely <- group_by(data, Year)
+  data_lonely <- summarise(data_lonely, Loneliness = mean(loneills)) 
+  
+    ggplot(data_lonely, aes(y=Loneliness, x=Year))+
+    geom_point() +
+    geom_line() +
+    labs(title = "Average loneliness score per year")
+
+  kable(data_lonely)
+```
+
+
+
+#### Lonliness seems to increase (slightly) based with patient numbers
+```{r}
+  ggplot(data, aes(x=data$NUMBER_OF_PATIENTS, y=data$loneills))+
+    geom_point() +
+    geom_smooth(method='lm')+
+    labs(y="Loneliness score",
+         x="Number of patients in GP practice")
+
+```
+
+Could be worth exploring further, as potentially population density (for which no of patients is an indicator) might be a factor? Population estimates for the MSOA's can be found [here](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/middlesuperoutputareamidyearpopulationestimates), and will hopefully be easy enough to begin linking in with the data we currently have. 
+
+#### Loneliness score by urban/rural catergory (no. of categories = 10)
+
+I used the following definitions of urban vs rural to create both of the plots below, sourced from  [here](https://www.ons.gov.uk/methodology/geography/geographicalproducts/ruralurbanclassifications/2011ruralurbanclassification):
+
+  * Urban: Major Conurbation (A1)
+  * Urban: Minor Conurbation (B1)
+  * Urban: City and Town (C1)
+  * Urban: City and Town in a Sparse Setting (C2)
+  * Rural: Town and Fringe (D1)
+  * Rural: Town and Fringe in a Sparse Setting (D2)
+  * Rural: Village (E1)
+  * Rural: Village in a Sparse Setting (E2)
+  * Rural: Hamlets and Isolated Dwellings (F1)
+  * Rural: Hamlets and Isolated Dwellings in a Sparse Setting (F2)
+  
+```{r}
+  data_ru11ind <- group_by(data, ru11ind, Year)
+  data_ru11ind <- summarise(data_ru11ind, lonliness = mean(loneills))
+  
+  ggplot(data_ru11ind, aes(x = ru11ind, y=lonliness)) +
+    facet_grid(~Year)+
+    coord_flip() +
+    geom_bar(stat="identity") +
+    geom_hline(yintercept = 0) 
+```
+
+#### Loneliness score with urban/rural as binary variable
+```{r}
+data <- data %>%
+  mutate(
+  ru11ind_group = ifelse(
+  ru11ind == "A1" |
+  ru11ind == "B1" |
+  ru11ind == "C1" | ru11ind == "C2",
+  "Urban",
+  "Rural"
+  )
+  )
+
+  data_ru11ind_grp <- group_by(data, ru11ind_group, Year)
+  data_ru11ind_grp <- summarise(data_ru11ind_grp, lonliness = mean(loneills))
+  
+  ggplot(data_ru11ind_grp, aes(x = ru11ind_group, y=lonliness)) +
+    facet_grid(~Year)+
+    geom_bar(stat="identity") +
+    geom_hline(yintercept = 0) +
+    labs(y="Loneliness score",
+         x="Domicile location",
+         title = "Plot of loneliness score by location of domicile (urban vs rural)")
+```
+
+It does seem that location of domicile (urban vs rural) has an effect on average loneliness.
