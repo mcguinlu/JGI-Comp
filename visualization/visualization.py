@@ -16,13 +16,12 @@ import plotly.graph_objs as go
 import pymysql
 from colour import Color
 from dash.dependencies import Input, Output
-from flask import Flask, send_from_directory
 from plotly import tools
 from sklearn import preprocessing
 
 db_name = "loneliness"
 mapbox_access_token = 'pk.eyJ1IjoiYXhlbG1icmlzdG9sIiwiYSI6ImNqdndjdTJqcjF0NTQ0YW1zajltNG9mNmYifQ.9aVhyD9PCBmyPvUO8ObxkA'
-plotly.tools.set_credentials_file(username='axelmbristol', api_key='Gbnf3TETPtRpt1WY0vr2')
+# plotly.tools.set_credentials_file(username='axelmbristol', api_key='Gbnf3TETPtRpt1WY0vr2')
 WIDTH = '380px'
 HEIGHT = '570px'
 ZOOM = 4.9
@@ -1520,376 +1519,379 @@ print('init dash...')
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 # server = Flask(__name__, static_folder='assets')
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets, static_folder='assets')
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/brPBPO.css"})
-app.css.append_css({"external_url": "body.css"})
-server = app.server
+# app.css.append_css({"external_url": "body.css"})
+# server = app.server
 app.title = 'Loneliness Data challenge'
 
-if __name__ == '__main__':
-    print("dash ccv %s" % dcc.__version__)
-    print(sys.argv)
-    db_server_name = "localhost"
-    db_user = "root"
-    db_password = "Mojjo@2015"
-    char_set = "utf8"
-    cusror_type = pymysql.cursors.DictCursor
 
-    sql_db = pymysql.connect(host=db_server_name, user=db_user, password=db_password)
-    connect_to_sql_database(db_server_name, db_user, db_password, db_name, char_set, cusror_type)
+print("dash ccv %s" % dcc.__version__)
+print(sys.argv)
+db_server_name = "localhost"
+db_user = "axel"
+db_password = "Mojjo@2015"
+char_set = "utf8"
+cusror_type = pymysql.cursors.DictCursor
 
-    city_names = get_as_list('place_name', execute_sql_query("SELECT DISTINCT(place_name) FROM %s" % 'final_data'),
-                             clean_city_name=True)
-    print(city_names)
-    domiciles = get_as_list('domicile', execute_sql_query("SELECT DISTINCT(domicile) FROM %s" % 'student_migration'),
-                            clean_city_name=True)
-    print(domiciles)
-    study_levels = get_as_list('level_of_study', execute_sql_query("SELECT DISTINCT(level_of_study) FROM %s" % 'student_migration'))
-    print(study_levels)
+sql_db = pymysql.connect(host=db_server_name, user=db_user, password=db_password)
+connect_to_sql_database(db_server_name, db_user, db_password, db_name, char_set, cusror_type)
 
-    study_modes = get_as_list('mode_of_study', execute_sql_query("SELECT DISTINCT(mode_of_study) FROM %s" % 'student_migration'))
-    print(study_modes)
+city_names = get_as_list('place_name', execute_sql_query("SELECT DISTINCT(place_name) FROM %s" % 'final_data'),
+                         clean_city_name=True)
+print(city_names)
+domiciles = get_as_list('domicile', execute_sql_query("SELECT DISTINCT(domicile) FROM %s" % 'student_migration'),
+                        clean_city_name=True)
+print(domiciles)
+study_levels = get_as_list('level_of_study', execute_sql_query("SELECT DISTINCT(level_of_study) FROM %s" % 'student_migration'))
+print(study_levels)
 
-    build_default_app_layout(app, city_names)
+study_modes = get_as_list('mode_of_study', execute_sql_query("SELECT DISTINCT(mode_of_study) FROM %s" % 'student_migration'))
+print(study_modes)
 
-    @server.route('/favicon.ico')
-    def favicon():
-        return send_from_directory(os.path.join(server.root_path, 'assets'), 'favicon.ico')
+build_default_app_layout(app, city_names)
 
-    @app.callback(
-        Output('side-by-side', 'style'),
-        [Input('city-dropdown', 'value')])
-    def update_dashboard_height(value):
-        print(value)
-        if value is not None and len(value) > 2:
-            return {'height': '500px', 'width': '1920px', 'margin-bottom': '0px', 'margin-top': '130px'}
-        else:
-            return {'height': '500px', 'width': '1920px', 'margin-bottom': '0px', 'margin-top': '100px'}
+# @server.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(os.path.join(server.root_path, 'assets'), 'favicon.ico')
 
-
-    @app.callback(
-        Output('dashboard', 'style'),
-        [Input('city-dropdown', 'value')])
-    def update_dashboard_height(value):
-        print(value)
-        if len(value) > 2:
-            return {'width': '100%', 'height': '258px', 'display': 'inline-block', 'background-color': 'gray'}
-        else:
-            return {'width': '100%', 'height': '228px', 'display': 'inline-block', 'background-color': 'gray'}
-
-    @app.callback(
-        Output('detail-graph', 'style'),
-        [Input('detail-graph', 'figure')])
-    def hide_graph(fig):
-        print(fig)
-        if len(fig['data']) == 0:
-            return {'display': 'none', 'height': '0px'}
-        else:
-            return {'display': True}
-
-    @app.callback(
-        Output('label-2016', 'style'),
-        [Input('dark-mode-checkbox', 'on')])
-    def hide_graph(dark_mode_enabled):
-        if dark_mode_enabled:
-            return {'color': 'white', 'margin-top': '-40px', 'margin-left': '10px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
-        else:
-            return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '10px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
-
-    @app.callback(
-        Output('label-2017', 'style'),
-        [Input('dark-mode-checkbox', 'on')])
-    def hide_graph(dark_mode_enabled):
-        if dark_mode_enabled:
-            return {'color': 'white', 'margin-top': '-40px', 'margin-left': '400px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
-        else:
-            return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '400px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+@app.callback(
+    Output('side-by-side', 'style'),
+    [Input('city-dropdown', 'value')])
+def update_dashboard_height(value):
+    print(value)
+    if value is not None and len(value) > 2:
+        return {'height': '500px', 'width': '1920px', 'margin-bottom': '0px', 'margin-top': '130px'}
+    else:
+        return {'height': '500px', 'width': '1920px', 'margin-bottom': '0px', 'margin-top': '100px'}
 
 
-    @app.callback(
-        Output('label-2018', 'style'),
-        [Input('dark-mode-checkbox', 'on')])
-    def hide_graph(dark_mode_enabled):
-        if dark_mode_enabled:
-            return {'color': 'white', 'margin-top': '-40px', 'margin-left': '790px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
-        else:
-            return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '790px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+@app.callback(
+    Output('dashboard', 'style'),
+    [Input('city-dropdown', 'value')])
+def update_dashboard_height(value):
+    print(value)
+    if len(value) > 2:
+        return {'width': '100%', 'height': '258px', 'display': 'inline-block', 'background-color': 'gray'}
+    else:
+        return {'width': '100%', 'height': '228px', 'display': 'inline-block', 'background-color': 'gray'}
+
+@app.callback(
+    Output('detail-graph', 'style'),
+    [Input('detail-graph', 'figure')])
+def hide_graph(fig):
+    print(fig)
+    if len(fig['data']) == 0:
+        return {'display': 'none', 'height': '0px'}
+    else:
+        return {'display': True}
+
+@app.callback(
+    Output('label-2016', 'style'),
+    [Input('dark-mode-checkbox', 'on')])
+def hide_graph(dark_mode_enabled):
+    if dark_mode_enabled:
+        return {'color': 'white', 'margin-top': '-40px', 'margin-left': '10px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+    else:
+        return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '10px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+
+@app.callback(
+    Output('label-2017', 'style'),
+    [Input('dark-mode-checkbox', 'on')])
+def hide_graph(dark_mode_enabled):
+    if dark_mode_enabled:
+        return {'color': 'white', 'margin-top': '-40px', 'margin-left': '400px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+    else:
+        return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '400px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
 
 
-    @app.callback(
-        Output('detail-graph', 'figure'),
-        [Input('condition-checkbox', 'values'),
-         Input('city-dropdown', 'value')])
-    def update_figure(conditions, city_list):
-
-        if city_list is not None and len(city_list) > 0:
-            titles = tuple([x.replace(', United Kingdom','') for x in city_list])
-            fig = tools.make_subplots(rows=len(city_list), cols=1, subplot_titles=titles)
-            for i, city in enumerate(city_list):
-                print(city)
-                year_list = []
-                depression_perc_list = []
-                alzheimers_perc_list = []
-                blood_pressure_perc_list = []
-                hypertension_perc_list = []
-                diabetes_perc_list = []
-                cardiovascular_disease_perc_list = []
-                insomnia_perc_list = []
-                addiction_perc_list = []
-                social_anxiety_perc_list = []
-                loneliness_perc_list = []
-                depression_zscore_list = []
-                alzheimers_zscore_list = []
-                blood_pressure_zscore_list = []
-                hypertension_zscore_list = []
-                diabetes_zscore_list = []
-                cardiovascular_disease_zscore_list = []
-                insomnia_zscore_list = []
-                addiction_zscore_list = []
-                social_anxiety_zscore_list = []
-                loneliness_zscore_list = []
-                loneills_list = []
-                place_name_list = []
-                number_of_patients_list = []
-                data = execute_sql_query('SELECT year, number_of_patients, depression_perc,'
-                                         ' alzheimers_perc, blood_pressure_perc,'
-                                         ' hypertension_perc, diabetes_perc, cardiovascular_disease_perc,'
-                                         ' insomnia_perc, addiction_perc, social_anxiety_perc,'
-                                         ' loneliness_perc, depression_zscore, alzheimers_zscore,'
-                                         ' blood_pressure_zscore, hypertension_zscore, '
-                                         'diabetes_zscore, cardiovascular_disease_zscore,insomnia_zscore,'
-                                         ' addiction_zscore, social_anxiety_zscore, loneliness_zscore,'
-                                         ' loneills, place_name FROM %s WHERE place_name="%s" GROUP BY year,'
-                                         ' number_of_patients,'
-                                         ' depression_perc, alzheimers_perc, blood_pressure_perc, hypertension_perc,'
-                                         ' diabetes_perc, cardiovascular_disease_perc, insomnia_perc, addiction_perc,'
-                                         ' social_anxiety_perc, loneliness_perc, depression_zscore, alzheimers_zscore,'
-                                         ' blood_pressure_zscore, hypertension_zscore, diabetes_zscore,'
-                                         ' cardiovascular_disease_zscore,insomnia_zscore, addiction_zscore,'
-                                         ' social_anxiety_zscore, loneliness_zscore,'
-                                         ' loneills, place_name' % ('final_data', city))
-                for row in data:
-                    year_list.append(row['year'])
-                    depression_perc_list.append(row['depression_perc'])
-                    alzheimers_perc_list.append(row['alzheimers_perc'])
-                    blood_pressure_perc_list.append(row['blood_pressure_perc'])
-                    hypertension_perc_list.append(row['hypertension_perc'])
-                    diabetes_perc_list.append(row['diabetes_perc'])
-                    cardiovascular_disease_perc_list.append(row['cardiovascular_disease_perc'])
-                    insomnia_perc_list.append(row['insomnia_perc'])
-                    addiction_perc_list.append(row['addiction_perc'])
-                    social_anxiety_perc_list.append(row['social_anxiety_perc'])
-                    loneliness_perc_list.append(row['loneliness_perc'])
-                    depression_zscore_list.append(row['depression_zscore'])
-                    alzheimers_zscore_list.append(row['alzheimers_zscore'])
-                    blood_pressure_zscore_list.append(row['blood_pressure_zscore'])
-                    hypertension_zscore_list.append(row['hypertension_zscore'])
-                    diabetes_zscore_list.append(row['diabetes_zscore'])
-                    cardiovascular_disease_zscore_list.append(row['cardiovascular_disease_zscore'])
-                    insomnia_zscore_list.append(row['insomnia_zscore'])
-                    addiction_zscore_list.append(row['addiction_zscore'])
-                    social_anxiety_zscore_list.append(row['social_anxiety_zscore'])
-                    loneliness_zscore_list.append(row['loneliness_zscore'])
-                    loneills_list.append(row['loneills'])
-                    place_name_list.append(row['place_name'])
-                    number_of_patients_list.append(row['number_of_patients'])
-
-                traces = get_traces(conditions, year_list, depression_perc_list, alzheimers_perc_list,
-                                    blood_pressure_perc_list, hypertension_perc_list, diabetes_perc_list,
-                                    cardiovascular_disease_perc_list, insomnia_perc_list, addiction_perc_list, social_anxiety_perc_list,
-                                    loneliness_perc_list, depression_zscore_list, alzheimers_zscore_list, blood_pressure_zscore_list,
-                                    hypertension_zscore_list, diabetes_zscore_list, cardiovascular_disease_zscore_list,
-                                    insomnia_zscore_list, addiction_zscore_list, social_anxiety_zscore_list, loneliness_zscore_list,
-                                    loneills_list, number_of_patients_list)
-
-                for idx, t in enumerate(traces):
-                    if i == 0:
-                        t.showlegend = True
-                    fig.append_trace(t, i+1, 1)
-
-            fig['layout']['xaxis'].update(nticks=4)
-            for n in range(0, len(city_list)-1):
-                print('xaxis%d' % (n+2))
-                fig['layout']['xaxis%d' % (n+2)].update(nticks=4)
-
-            fig['layout'].update(height=660, width=700,
-                                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                                 barmode='stack' if len(conditions) == 1 and 'loneills' in conditions else 'group')
-
-            # fig['style'].update(display=True)
-
-            # py.iplot(fig, filename='make-subplots-multiple-with-titles')
-
-            result = {'data': fig.data, 'layout': fig.layout}
-            return result
-        else:
-            print('clean...')
-            layout = go.Layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
-            )
-            return {'data': {}, 'layout': layout}
+@app.callback(
+    Output('label-2018', 'style'),
+    [Input('dark-mode-checkbox', 'on')])
+def hide_graph(dark_mode_enabled):
+    if dark_mode_enabled:
+        return {'color': 'white', 'margin-top': '-40px', 'margin-left': '790px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
+    else:
+        return {'color': 'dimgray', 'margin-top': '-40px', 'margin-left': '790px', 'height': '30px', 'background-color':'transparent', 'float':'left', 'z-index': '-1', 'position': 'absolute'}
 
 
-    @app.callback(
-        Output('condition-checkbox', 'values'),
-        [Input('select-all-checkbox', 'values')])
-    def update_checkbox(sellect_all):
-        print(sellect_all)
-        # options = ['depression_perc', 'alzheimers_perc',
-        #            'blood_pressure_perc', 'hypertension_perc', 'diabetes_perc',
-        #            'cardiovascular_disease_perc', 'insomnia_perc', 'addiction_perc',
-        #            'social_anxiety_perc', 'loneliness_perc', 'depression_zscore',
-        #            'alzheimers_zscore', 'blood_pressure_zscore', 'hypertension_zscore',
-        #            'diabetes_zscore', 'cardiovascular_disease_zscore', 'insomnia_zscore',
-        #            'addiction_zscore', 'social_anxiety_zscore', 'loneliness_zscore', 'loneills']
-        options = ['depression_zscore','alzheimers_zscore', 'blood_pressure_zscore', 'hypertension_zscore',
-                   'diabetes_zscore', 'cardiovascular_disease_zscore', 'insomnia_zscore',
-                   'addiction_zscore', 'social_anxiety_zscore', 'loneliness_zscore', 'loneills']
-        if sellect_all is not None and 'enabled' in sellect_all:
-            return options
-        else:
-            return ['loneills']
+@app.callback(
+    Output('detail-graph', 'figure'),
+    [Input('condition-checkbox', 'values'),
+     Input('city-dropdown', 'value')])
+def update_figure(conditions, city_list):
 
+    if city_list is not None and len(city_list) > 0:
+        titles = tuple([x.replace(', United Kingdom','') for x in city_list])
+        fig = tools.make_subplots(rows=len(city_list), cols=1, subplot_titles=titles)
+        for i, city in enumerate(city_list):
+            print(city)
+            year_list = []
+            depression_perc_list = []
+            alzheimers_perc_list = []
+            blood_pressure_perc_list = []
+            hypertension_perc_list = []
+            diabetes_perc_list = []
+            cardiovascular_disease_perc_list = []
+            insomnia_perc_list = []
+            addiction_perc_list = []
+            social_anxiety_perc_list = []
+            loneliness_perc_list = []
+            depression_zscore_list = []
+            alzheimers_zscore_list = []
+            blood_pressure_zscore_list = []
+            hypertension_zscore_list = []
+            diabetes_zscore_list = []
+            cardiovascular_disease_zscore_list = []
+            insomnia_zscore_list = []
+            addiction_zscore_list = []
+            social_anxiety_zscore_list = []
+            loneliness_zscore_list = []
+            loneills_list = []
+            place_name_list = []
+            number_of_patients_list = []
+            data = execute_sql_query('SELECT year, number_of_patients, depression_perc,'
+                                     ' alzheimers_perc, blood_pressure_perc,'
+                                     ' hypertension_perc, diabetes_perc, cardiovascular_disease_perc,'
+                                     ' insomnia_perc, addiction_perc, social_anxiety_perc,'
+                                     ' loneliness_perc, depression_zscore, alzheimers_zscore,'
+                                     ' blood_pressure_zscore, hypertension_zscore, '
+                                     'diabetes_zscore, cardiovascular_disease_zscore,insomnia_zscore,'
+                                     ' addiction_zscore, social_anxiety_zscore, loneliness_zscore,'
+                                     ' loneills, place_name FROM %s WHERE place_name="%s" GROUP BY year,'
+                                     ' number_of_patients,'
+                                     ' depression_perc, alzheimers_perc, blood_pressure_perc, hypertension_perc,'
+                                     ' diabetes_perc, cardiovascular_disease_perc, insomnia_perc, addiction_perc,'
+                                     ' social_anxiety_perc, loneliness_perc, depression_zscore, alzheimers_zscore,'
+                                     ' blood_pressure_zscore, hypertension_zscore, diabetes_zscore,'
+                                     ' cardiovascular_disease_zscore,insomnia_zscore, addiction_zscore,'
+                                     ' social_anxiety_zscore, loneliness_zscore,'
+                                     ' loneills, place_name' % ('final_data', city))
+            for row in data:
+                year_list.append(row['year'])
+                depression_perc_list.append(row['depression_perc'])
+                alzheimers_perc_list.append(row['alzheimers_perc'])
+                blood_pressure_perc_list.append(row['blood_pressure_perc'])
+                hypertension_perc_list.append(row['hypertension_perc'])
+                diabetes_perc_list.append(row['diabetes_perc'])
+                cardiovascular_disease_perc_list.append(row['cardiovascular_disease_perc'])
+                insomnia_perc_list.append(row['insomnia_perc'])
+                addiction_perc_list.append(row['addiction_perc'])
+                social_anxiety_perc_list.append(row['social_anxiety_perc'])
+                loneliness_perc_list.append(row['loneliness_perc'])
+                depression_zscore_list.append(row['depression_zscore'])
+                alzheimers_zscore_list.append(row['alzheimers_zscore'])
+                blood_pressure_zscore_list.append(row['blood_pressure_zscore'])
+                hypertension_zscore_list.append(row['hypertension_zscore'])
+                diabetes_zscore_list.append(row['diabetes_zscore'])
+                cardiovascular_disease_zscore_list.append(row['cardiovascular_disease_zscore'])
+                insomnia_zscore_list.append(row['insomnia_zscore'])
+                addiction_zscore_list.append(row['addiction_zscore'])
+                social_anxiety_zscore_list.append(row['social_anxiety_zscore'])
+                loneliness_zscore_list.append(row['loneliness_zscore'])
+                loneills_list.append(row['loneills'])
+                place_name_list.append(row['place_name'])
+                number_of_patients_list.append(row['number_of_patients'])
 
-    def format_to_checkbox_string(string_list, empty=False):
-        result = []
-        for string in string_list:
-            if len(string) > 10:
-                print(string)
-            result.append({'label': string, 'value': '' if empty else string})
+            traces = get_traces(conditions, year_list, depression_perc_list, alzheimers_perc_list,
+                                blood_pressure_perc_list, hypertension_perc_list, diabetes_perc_list,
+                                cardiovascular_disease_perc_list, insomnia_perc_list, addiction_perc_list, social_anxiety_perc_list,
+                                loneliness_perc_list, depression_zscore_list, alzheimers_zscore_list, blood_pressure_zscore_list,
+                                hypertension_zscore_list, diabetes_zscore_list, cardiovascular_disease_zscore_list,
+                                insomnia_zscore_list, addiction_zscore_list, social_anxiety_zscore_list, loneliness_zscore_list,
+                                loneills_list, number_of_patients_list)
+
+            for idx, t in enumerate(traces):
+                if i == 0:
+                    t.showlegend = True
+                fig.append_trace(t, i+1, 1)
+
+        fig['layout']['xaxis'].update(nticks=4)
+        for n in range(0, len(city_list)-1):
+            print('xaxis%d' % (n+2))
+            fig['layout']['xaxis%d' % (n+2)].update(nticks=4)
+
+        fig['layout'].update(height=660, width=700,
+                             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                             barmode='stack' if len(conditions) == 1 and 'loneills' in conditions else 'group')
+
+        # fig['style'].update(display=True)
+
+        # py.iplot(fig, filename='make-subplots-multiple-with-titles')
+
+        result = {'data': fig.data, 'layout': fig.layout}
         return result
+    else:
+        print('clean...')
+        layout = go.Layout(
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
+        )
+        return {'data': {}, 'layout': layout}
 
-    @app.callback(
-        Output('map-2016', 'figure'),
-        [Input('condition-checkbox', 'values'),
-         Input('condition-radio', 'value'),
-         Input('detail-graph', 'figure'),
-         Input('normalize-checkbox', 'values'),
-         Input('dark-mode-checkbox', 'on'),
-         Input('choropleth-mode-lowres-checkbox', 'on'),
-         Input('choropleth-mode-highres-checkbox', 'on'),
-         Input('domicile-dropdown', 'value'),
-         Input('study-level-dropdown', 'value'),
-         Input('study-mode-dropdown', 'value')
-         ])
-    def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
-        if level is None:
-            level = 'All'
-        if mode_of_study is None:
-            mode_of_study = 'Full-time'
-        if choropleth or choropleth_highres:
-            return build_choropleth_map(2016, radio, detail_figure, 'enabled' in normalize, style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
-        else:
-            return build_map(2016, radio, detail_figure, 'enabled' in normalize, style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
 
-    @app.callback(
-        Output('choropleth-mode-lowres-checkbox', 'on'),
-        [Input('choropleth-mode-highres-checkbox', 'on')])
-    def update_figure(highres_on):
-        if highres_on:
+@app.callback(
+    Output('condition-checkbox', 'values'),
+    [Input('select-all-checkbox', 'values')])
+def update_checkbox(sellect_all):
+    print(sellect_all)
+    # options = ['depression_perc', 'alzheimers_perc',
+    #            'blood_pressure_perc', 'hypertension_perc', 'diabetes_perc',
+    #            'cardiovascular_disease_perc', 'insomnia_perc', 'addiction_perc',
+    #            'social_anxiety_perc', 'loneliness_perc', 'depression_zscore',
+    #            'alzheimers_zscore', 'blood_pressure_zscore', 'hypertension_zscore',
+    #            'diabetes_zscore', 'cardiovascular_disease_zscore', 'insomnia_zscore',
+    #            'addiction_zscore', 'social_anxiety_zscore', 'loneliness_zscore', 'loneills']
+    options = ['depression_zscore','alzheimers_zscore', 'blood_pressure_zscore', 'hypertension_zscore',
+               'diabetes_zscore', 'cardiovascular_disease_zscore', 'insomnia_zscore',
+               'addiction_zscore', 'social_anxiety_zscore', 'loneliness_zscore', 'loneills']
+    if sellect_all is not None and 'enabled' in sellect_all:
+        return options
+    else:
+        return ['loneills']
+
+
+def format_to_checkbox_string(string_list, empty=False):
+    result = []
+    for string in string_list:
+        if len(string) > 10:
+            print(string)
+        result.append({'label': string, 'value': '' if empty else string})
+    return result
+
+@app.callback(
+    Output('map-2016', 'figure'),
+    [Input('condition-checkbox', 'values'),
+     Input('condition-radio', 'value'),
+     Input('detail-graph', 'figure'),
+     Input('normalize-checkbox', 'values'),
+     Input('dark-mode-checkbox', 'on'),
+     Input('choropleth-mode-lowres-checkbox', 'on'),
+     Input('choropleth-mode-highres-checkbox', 'on'),
+     Input('domicile-dropdown', 'value'),
+     Input('study-level-dropdown', 'value'),
+     Input('study-mode-dropdown', 'value')
+     ])
+def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
+    if level is None:
+        level = 'All'
+    if mode_of_study is None:
+        mode_of_study = 'Full-time'
+    if choropleth or choropleth_highres:
+        return build_choropleth_map(2016, radio, detail_figure, 'enabled' in normalize, style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
+    else:
+        return build_map(2016, radio, detail_figure, 'enabled' in normalize, style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
+
+@app.callback(
+    Output('choropleth-mode-lowres-checkbox', 'on'),
+    [Input('choropleth-mode-highres-checkbox', 'on')])
+def update_figure(highres_on):
+    if highres_on:
+        return False
+
+@app.callback(
+    Output('choropleth-mode-lowres-checkbox', 'disabled'),
+    [Input('choropleth-mode-highres-checkbox', 'on')])
+def update_figure(highres_on):
+    if highres_on:
+        return True
+    else:
+        return False
+
+@app.callback(
+    Output('map-2017', 'figure'),
+    [Input('condition-checkbox', 'values'),
+     Input('condition-radio', 'value'),
+     Input('detail-graph', 'figure'),
+     Input('normalize-checkbox', 'values'),
+     Input('dark-mode-checkbox', 'on'),
+     Input('choropleth-mode-lowres-checkbox', 'on'),
+     Input('choropleth-mode-highres-checkbox', 'on'),
+     Input('domicile-dropdown', 'value'),
+     Input('study-level-dropdown', 'value'),
+     Input('study-mode-dropdown', 'value')
+     ])
+def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
+    if level is None:
+        level = 'All'
+    if mode_of_study is None:
+        mode_of_study = 'Full-time'
+    if choropleth or choropleth_highres:
+        return build_choropleth_map(2017, radio, detail_figure, 'enabled' in normalize,
+                                    style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
+    else:
+        return build_map(2017, radio, detail_figure, 'enabled' in normalize,
+                         style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
+
+@app.callback(
+    Output('map-2018', 'figure'),
+    [Input('condition-checkbox', 'values'),
+     Input('condition-radio', 'value'),
+     Input('detail-graph', 'figure'),
+     Input('normalize-checkbox', 'values'),
+     Input('dark-mode-checkbox', 'on'),
+     Input('choropleth-mode-lowres-checkbox', 'on'),
+     Input('choropleth-mode-highres-checkbox', 'on'),
+     Input('domicile-dropdown', 'value'),
+     Input('study-level-dropdown', 'value'),
+     Input('study-mode-dropdown', 'value')
+     ])
+def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
+    if level is None:
+        level = 'All'
+    if mode_of_study is None:
+        mode_of_study = 'Full-time'
+    if choropleth or choropleth_highres:
+        return build_choropleth_map(2018, radio, detail_figure, 'enabled' in normalize,
+                                    style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
+    else:
+        return build_map(2018, radio, detail_figure, 'enabled' in normalize,
+                         style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
+
+@app.callback(
+    Output('city-dropdown', 'value'),
+    [Input('button', 'n_clicks_timestamp')])
+def empty_dropdown(n_clicks):
+    if n_clicks is not None:
+        click_date = datetime.utcfromtimestamp(float(n_clicks)/1000.0).strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
+        now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
+        print(click_date, now_date)
+        if click_date == now_date:
+            return []
+    else:
+        raise dash.exceptions.PreventUpdate()
+
+@app.callback(
+    Output('dropdown-data-city', 'children'),
+    [Input('city-dropdown', 'value')]
+)
+def disable_dropdown(value):
+    if len(value) > 4:
+        v = [value[0], value[-1]]
+        return json.dumps(v, indent=2)
+    else:
+        return json.dumps(value, indent=2)
+
+
+@app.callback(
+    Output('city-dropdown', 'disabled'),
+    [Input('dropdown-data-city', 'children'),
+     Input('button', 'n_clicks_timestamp')])
+def update_serial_number_drop_down(dropdown_value, n_clicks):
+    if n_clicks is not None:
+        click_date = datetime.utcfromtimestamp(float(n_clicks)/1000.0).strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
+        now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
+        print(click_date, now_date)
+        if click_date == now_date:
             return False
-
-    @app.callback(
-        Output('choropleth-mode-lowres-checkbox', 'disabled'),
-        [Input('choropleth-mode-highres-checkbox', 'on')])
-    def update_figure(highres_on):
-        if highres_on:
-            return True
-        else:
-            return False
-
-    @app.callback(
-        Output('map-2017', 'figure'),
-        [Input('condition-checkbox', 'values'),
-         Input('condition-radio', 'value'),
-         Input('detail-graph', 'figure'),
-         Input('normalize-checkbox', 'values'),
-         Input('dark-mode-checkbox', 'on'),
-         Input('choropleth-mode-lowres-checkbox', 'on'),
-         Input('choropleth-mode-highres-checkbox', 'on'),
-         Input('domicile-dropdown', 'value'),
-         Input('study-level-dropdown', 'value'),
-         Input('study-mode-dropdown', 'value')
-         ])
-    def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
-        if level is None:
-            level = 'All'
-        if mode_of_study is None:
-            mode_of_study = 'Full-time'
-        if choropleth or choropleth_highres:
-            return build_choropleth_map(2017, radio, detail_figure, 'enabled' in normalize,
-                                        style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
-        else:
-            return build_map(2017, radio, detail_figure, 'enabled' in normalize,
-                             style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
-
-    @app.callback(
-        Output('map-2018', 'figure'),
-        [Input('condition-checkbox', 'values'),
-         Input('condition-radio', 'value'),
-         Input('detail-graph', 'figure'),
-         Input('normalize-checkbox', 'values'),
-         Input('dark-mode-checkbox', 'on'),
-         Input('choropleth-mode-lowres-checkbox', 'on'),
-         Input('choropleth-mode-highres-checkbox', 'on'),
-         Input('domicile-dropdown', 'value'),
-         Input('study-level-dropdown', 'value'),
-         Input('study-mode-dropdown', 'value')
-         ])
-    def update_figure(_, radio, detail_figure, normalize, mode, choropleth, choropleth_highres, domicile, level, mode_of_study):
-        if level is None:
-            level = 'All'
-        if mode_of_study is None:
-            mode_of_study = 'Full-time'
-        if choropleth or choropleth_highres:
-            return build_choropleth_map(2018, radio, detail_figure, 'enabled' in normalize,
-                                        style='dark' if mode else 'basic', high_res=choropleth_highres, domicile=domicile, level=level, mode=mode_of_study)
-        else:
-            return build_map(2018, radio, detail_figure, 'enabled' in normalize,
-                             style='dark' if mode else 'basic', domicile=domicile, level=level, mode=mode_of_study)
-
-    @app.callback(
-        Output('city-dropdown', 'value'),
-        [Input('button', 'n_clicks_timestamp')])
-    def empty_dropdown(n_clicks):
-        if n_clicks is not None:
-            click_date = datetime.utcfromtimestamp(float(n_clicks)/1000.0).strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
-            now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
-            print(click_date, now_date)
-            if click_date == now_date:
-                return []
-        else:
-            raise dash.exceptions.PreventUpdate()
-
-    @app.callback(
-        Output('dropdown-data-city', 'children'),
-        [Input('city-dropdown', 'value')]
-    )
-    def disable_dropdown(value):
-        if len(value) > 4:
-            v = [value[0], value[-1]]
-            return json.dumps(v, indent=2)
-        else:
-            return json.dumps(value, indent=2)
+    d = json.loads(dropdown_value)
+    if d is not None:
+        return len(d) > 3
 
 
-    @app.callback(
-        Output('city-dropdown', 'disabled'),
-        [Input('dropdown-data-city', 'children'),
-         Input('button', 'n_clicks_timestamp')])
-    def update_serial_number_drop_down(dropdown_value, n_clicks):
-        if n_clicks is not None:
-            click_date = datetime.utcfromtimestamp(float(n_clicks)/1000.0).strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
-            now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S').split(' ')[1][3:]
-            print(click_date, now_date)
-            if click_date == now_date:
-                return False
-        d = json.loads(dropdown_value)
-        if d is not None:
-            return len(d) > 3
+server = app.server
 
-
-    app.run_server(debug=True, use_reloader=False)
+if __name__ == '__main__':
+    app.run_server(debug=True)
 
 
 
