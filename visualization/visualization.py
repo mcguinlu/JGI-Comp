@@ -361,7 +361,7 @@ def execute_sql_query(query, records=None, log_enabled=False):
         print("Exeception occured:{}".format(e))
 
 
-def connect_to_sql_database(db_server_name="localhost", db_user="axel", db_password="Mojjo@2015", db_name="",
+def connect_to_sql_database(db_server_name="localhost", db_user="axel", db_password="@2015", db_name="",
                             char_set="utf8mb4", cusror_type=pymysql.cursors.DictCursor):
     # print("connecting to db %s..." % db_name)
     sql_db = pymysql.connect(host=db_server_name, user=db_user, password=db_password,
@@ -1530,7 +1530,7 @@ print("dash ccv %s" % dcc.__version__)
 print(sys.argv)
 db_server_name = "localhost"
 db_user = "axel"
-db_password = "Mojjo@2015"
+db_password = "@2015"
 char_set = "utf8"
 cusror_type = pymysql.cursors.DictCursor
 
