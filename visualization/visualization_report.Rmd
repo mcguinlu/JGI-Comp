@@ -1,7 +1,9 @@
 ---
 title: "Visualization Loneliness Data challenge."
+output:
+  pdf_document: default
+  html_document: default
 date: "17/06/2019"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +24,7 @@ In an attempt to better understand the data provided a visualization program dis
 <br>
 The source code is available at https://github.com/mcguinlu/JGI-Comp/tree/master/visualization.
 
-This document explains the different features of the site
+This document explains the different features of the site.
 
 ## Control panel
 Located in the upper section of the site the control panel allows to select what information will be displayed in the lower section.
