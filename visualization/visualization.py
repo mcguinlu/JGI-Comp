@@ -21,13 +21,18 @@ from sklearn import preprocessing
 
 db_name = "loneliness"
 mapbox_access_token = 'pk.eyJ1IjoiYXhlbG1icmlzdG9sIiwiYSI6ImNqdndjdTJqcjF0NTQ0YW1zajltNG9mNmYifQ.9aVhyD9PCBmyPvUO8ObxkA'
-# plotly.tools.set_credentials_file(username='axelmbristol', api_key='Gbnf3TETPtRpt1WY0vr2')
 WIDTH = '380px'
 HEIGHT = '570px'
 ZOOM = 4.9
 LATITUDE_INIT = 53.5
 LONGITUDE_INIT = -2.10
 MARKER_CITY_SELECTED_SIZE = 8
+
+with open('Regions_December_2015_Ultra_Generalised_Clipped_Boundaries_in_England.geojson') as f:
+    GEOJSON_DATA_R = json.load(f)
+
+with open('map.geojson') as f:
+    GEOJSON_DATA_C = json.load(f)
 
 
 def get_traces(conditions, year_list, depression_perc_list, alzheimers_perc_list,
@@ -361,7 +366,7 @@ def execute_sql_query(query, records=None, log_enabled=False):
         print("Exeception occured:{}".format(e))
 
 
-def connect_to_sql_database(db_server_name="localhost", db_user="axel", db_password="@2015", db_name="",
+def connect_to_sql_database(db_server_name="localhost", db_user="root", db_password="@2015", db_name="",
                             char_set="utf8mb4", cusror_type=pymysql.cursors.DictCursor):
     # print("connecting to db %s..." % db_name)
     sql_db = pymysql.connect(host=db_server_name, user=db_user, password=db_password,
@@ -1102,248 +1107,246 @@ def build_choropleth_map(year, radio, detail_figure, normalize=False, style='bas
     except KeyError as e:
         print(e)
 
-    filename = 'Regions_December_2015_Ultra_Generalised_Clipped_Boundaries_in_England.geojson'
+    geojson_data = GEOJSON_DATA_R
     if high_res:
-        filename = 'map.geojson'
+        geojson_data = GEOJSON_DATA_C
 
-    with open(filename) as f:
-        GEOJSON_DATA = json.load(f)
-        flist = GEOJSON_DATA['features']
+    flist = geojson_data['features']
 
-        sources = []
+    sources = []
 
-        for feature in flist:
-            plist = multipoly_to_polylist2(feature)
-            sources.append({"type": "FeatureCollection", 'features': copy.deepcopy(plist)})
-            lons = []
-            lats = []
-        for k in range(len(sources)):
+    for feature in flist:
+        plist = multipoly_to_polylist2(feature)
+        sources.append({"type": "FeatureCollection", 'features': copy.deepcopy(plist)})
+        lons = []
+        lats = []
+    for k in range(len(sources)):
 
-            # combine (lon,lat) data for all polygons in region:
-            npoly = len(sources[k]['features'])
-            region_coords = np.array(sources[k]['features'][0]['geometry']['coordinates'][0])
-            for j in range(1, npoly):
-                tmp = np.array(sources[k]['features'][j]['geometry']['coordinates'][0])
-                region_coords = np.vstack((region_coords, tmp))
+        # combine (lon,lat) data for all polygons in region:
+        npoly = len(sources[k]['features'])
+        region_coords = np.array(sources[k]['features'][0]['geometry']['coordinates'][0])
+        for j in range(1, npoly):
+            tmp = np.array(sources[k]['features'][j]['geometry']['coordinates'][0])
+            region_coords = np.vstack((region_coords, tmp))
 
-            if len(region_coords.shape) > 1:
-                m, M = region_coords[:, 0].min(), region_coords[:, 0].max()
-                lons.append(0.5 * (m + M))
-                m, M = region_coords[:, 1].min(), region_coords[:, 1].max()
-                lats.append(0.5 * (m + M))
-            else:
-                m, M = region_coords[0].min(), region_coords[0].max()
-                lons.append(0.5 * (m + M))
-                m, M = region_coords[1].min(), region_coords[1].max()
-                lats.append(0.5 * (m + M))
-
-        facecolour = []
-        value_color = []
-        labels_he_nut = []
-
-        if not high_res:
-            data_list = execute_sql_query('SELECT %s, rgn FROM %s WHERE year="%s"' % (radio, 'final_data', year))
-            for p in range(len(sources)):
-                region = sources[p]['features'][0]['properties']['rgn15cd']
-                region_name = sources[p]['features'][0]['properties']['rgn15nm']
-                l = get_as_list(radio, data_list, region=region)
-                value = sum(l)/len(l)
-                if radio == 'number_of_patients':
-                    value = sum(l)
-
-                labels_he_nut.append('%s %.5f' % (region_name, value))
-                value_color.append(value)
+        if len(region_coords.shape) > 1:
+            m, M = region_coords[:, 0].min(), region_coords[:, 0].max()
+            lons.append(0.5 * (m + M))
+            m, M = region_coords[:, 1].min(), region_coords[:, 1].max()
+            lats.append(0.5 * (m + M))
         else:
-            data_list = execute_sql_query('SELECT %s, laua FROM %s WHERE year="%s"' % (radio, 'final_data', year))
-            for p in range(len(sources)):
-                laua = sources[p]['features'][0]['properties']['lau115cd']
-                countie_name = sources[p]['features'][0]['properties']['lau115nm']
-                l = get_as_list(radio, data_list, laua=laua)
-                value = sum(l) / len(l)
-                if radio == 'number_of_patients':
-                    value = sum(l)
+            m, M = region_coords[0].min(), region_coords[0].max()
+            lons.append(0.5 * (m + M))
+            m, M = region_coords[1].min(), region_coords[1].max()
+            lats.append(0.5 * (m + M))
 
-                labels_he_nut.append('%s %.5f' % (countie_name, value))
-                value_color.append(value)
-                # todo fix input array
-                if laua == 'E07000012':
-                    sources[p]['features'][0]['geometry']['coordinates'] = [sources[p]['features'][0]['geometry']['coordinates']]
+    facecolour = []
+    value_color = []
+    labels_he_nut = []
 
-        if high_res:
-            resolution = 20
-        else:
-            resolution = 1
+    if not high_res:
+        data_list = execute_sql_query('SELECT %s, rgn FROM %s WHERE year="%s"' % (radio, 'final_data', year))
+        for p in range(len(sources)):
+            region = sources[p]['features'][0]['properties']['rgn15cd']
+            region_name = sources[p]['features'][0]['properties']['rgn15nm']
+            l = get_as_list(radio, data_list, region=region)
+            value = sum(l)/len(l)
+            if radio == 'number_of_patients':
+                value = sum(l)
 
-        all_values_sorted = sorted(value_color)
-        all_values_chunked = chunks(all_values_sorted, resolution)
+            labels_he_nut.append('%s %.5f' % (region_name, value))
+            value_color.append(value)
+    else:
+        data_list = execute_sql_query('SELECT %s, laua FROM %s WHERE year="%s"' % (radio, 'final_data', year))
+        for p in range(len(sources)):
+            laua = sources[p]['features'][0]['properties']['lau115cd']
+            countie_name = sources[p]['features'][0]['properties']['lau115nm']
+            l = get_as_list(radio, data_list, laua=laua)
+            value = sum(l) / len(l)
+            if radio == 'number_of_patients':
+                value = sum(l)
 
-        # color_gradient = list(Color("white").range_to(Color(get_color_from_var(radio)), len(all_values_chunked)))
-        # if radio == 'loneills':
-        #     color_gradient = list(Color("yellow").range_to(Color("red"), len(all_values_chunked)))
-        # if radio == 'loneliness_perc':
-        #     color_gradient = list(Color("aqua").range_to(Color("blue"), len(all_values_chunked)))
-        legend_color_high = "red"
-        legend_color_low = "white"
-        if radio == 'loneills':
-            color_gradient = list(Color("yellow").range_to(Color("red"), len(all_values_chunked)))
-            legend_color_high = 'red'
-            legend_color_low = 'yellow'
-        if radio == 'social_anxiety_zscore':
-            color_gradient = list(Color("white").range_to(Color("red"), len(all_values_chunked)))
-            legend_color_high = 'red'
-        if radio == 'addiction_zscore':
-            color_gradient = list(Color("white").range_to(Color("violet"), len(all_values_chunked)))
-            legend_color_high = 'violet'
-        if radio == 'insomnia_zscore':
-            color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
-            legend_color_high = 'blue'
-        if radio == 'cardiovascular_disease_zscore':
-            color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
-            legend_color_high = 'blue'
-        if radio == 'diabetes_zscore':
-            color_gradient = list(Color("white").range_to(Color("#008080"), len(all_values_chunked)))
-            legend_color_high = 'rgb(0,128,128)'
-        if radio == 'hypertension_zscore':
-            color_gradient = list(Color("white").range_to(Color("#008080"), len(all_values_chunked)))
-            legend_color_high = 'rgb(0,128,128)'
-        if radio == 'blood_pressure_zscore':
-            color_gradient = list(Color("white").range_to(Color("green"), len(all_values_chunked)))
-            legend_color_high = 'green'
-        if radio == 'alzheimers_zscore':
-            color_gradient = list(Color("white").range_to(Color("lightgreen"), len(all_values_chunked)))
-            legend_color_high = 'lightgreen'
-        if radio == 'depression_zscore':
-            color_gradient = list(Color("white").range_to(Color("yellow"), len(all_values_chunked)))
-            legend_color_high = 'yellow'
-        if radio == 'number_of_patients':
-            color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
-            legend_color_high = 'blue'
+            labels_he_nut.append('%s %.5f' % (countie_name, value))
+            value_color.append(value)
+            # todo fix input array
+            if laua == 'E07000012':
+                sources[p]['features'][0]['geometry']['coordinates'] = [sources[p]['features'][0]['geometry']['coordinates']]
 
-        for value in value_color:
-            facecolour.append(get_color_from_value(value, color_gradient, all_values_chunked))
-            # facecolour.append(mapped_value[value])
+    if high_res:
+        resolution = 20
+    else:
+        resolution = 1
 
-        trace0 = go.Bar(x=[0], y=[0], name='High (max value: %.4f)' % max(value_color), marker=dict(color=legend_color_high))
-        trace1 = go.Bar(x=[0], y=[0], name='Low (min value: %.4f)' % min(value_color), marker=dict(color=legend_color_low))
+    all_values_sorted = sorted(value_color)
+    all_values_chunked = chunks(all_values_sorted, resolution)
 
-        NUTS1 = dict(type='scattermapbox',
-                     lat=lats,
-                     lon=lons,
-                     mode='markers',
-                     text=labels_he_nut,
-                     marker=dict(size=1, color='r'),
-                     showlegend=False,
-                     hoverinfo='text'
-                     )
-        layers = [dict(sourcetype='geojson',
-                       source=sources[k],
-                       below="water",
-                       type='fill',
-                       color=facecolour[k],
-                       opacity=1
-                       ) for k in range(len(sources))]
+    # color_gradient = list(Color("white").range_to(Color(get_color_from_var(radio)), len(all_values_chunked)))
+    # if radio == 'loneills':
+    #     color_gradient = list(Color("yellow").range_to(Color("red"), len(all_values_chunked)))
+    # if radio == 'loneliness_perc':
+    #     color_gradient = list(Color("aqua").range_to(Color("blue"), len(all_values_chunked)))
+    legend_color_high = "red"
+    legend_color_low = "white"
+    if radio == 'loneills':
+        color_gradient = list(Color("yellow").range_to(Color("red"), len(all_values_chunked)))
+        legend_color_high = 'red'
+        legend_color_low = 'yellow'
+    if radio == 'social_anxiety_zscore':
+        color_gradient = list(Color("white").range_to(Color("red"), len(all_values_chunked)))
+        legend_color_high = 'red'
+    if radio == 'addiction_zscore':
+        color_gradient = list(Color("white").range_to(Color("violet"), len(all_values_chunked)))
+        legend_color_high = 'violet'
+    if radio == 'insomnia_zscore':
+        color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
+        legend_color_high = 'blue'
+    if radio == 'cardiovascular_disease_zscore':
+        color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
+        legend_color_high = 'blue'
+    if radio == 'diabetes_zscore':
+        color_gradient = list(Color("white").range_to(Color("#008080"), len(all_values_chunked)))
+        legend_color_high = 'rgb(0,128,128)'
+    if radio == 'hypertension_zscore':
+        color_gradient = list(Color("white").range_to(Color("#008080"), len(all_values_chunked)))
+        legend_color_high = 'rgb(0,128,128)'
+    if radio == 'blood_pressure_zscore':
+        color_gradient = list(Color("white").range_to(Color("green"), len(all_values_chunked)))
+        legend_color_high = 'green'
+    if radio == 'alzheimers_zscore':
+        color_gradient = list(Color("white").range_to(Color("lightgreen"), len(all_values_chunked)))
+        legend_color_high = 'lightgreen'
+    if radio == 'depression_zscore':
+        color_gradient = list(Color("white").range_to(Color("yellow"), len(all_values_chunked)))
+        legend_color_high = 'yellow'
+    if radio == 'number_of_patients':
+        color_gradient = list(Color("white").range_to(Color("blue"), len(all_values_chunked)))
+        legend_color_high = 'blue'
 
-        layers_migration_lines = [dict(sourcetype='geojson',
-                                       source=sources_migration_lines[k],
-                                       type='line',
-                                       color='white',
-                                       opacity=0.5,
-                                       paint={'line-color': 'red', 'line-width': 1, 'line-dasharray': [2, 1]}
-                                       ) for k in range(len(sources_migration_lines))]
+    for value in value_color:
+        facecolour.append(get_color_from_value(value, color_gradient, all_values_chunked))
+        # facecolour.append(mapped_value[value])
 
-        layout = dict(font=dict(family='Balto'),
-                      margin=go.layout.Margin(l=0, r=0, t=0, b=0),
-                      autosize=False,
-                      # width=WIDTH,
-                      # height=HEIGHT,
-                      showlegend=True,
-                      legend=dict(
-                          x=0,
-                          y=1,
-                          traceorder='normal',
-                          font=dict(
-                              family='sans-serif',
-                              size=12,
-                              color='#ffffff'
-                          ),
-                          bgcolor='rgb(50, 50, 50)' if style == 'dark' else 'rgb(128, 128, 128)',
-                          borderwidth=0
+    trace0 = go.Bar(x=[0], y=[0], name='High (max value: %.4f)' % max(value_color), marker=dict(color=legend_color_high))
+    trace1 = go.Bar(x=[0], y=[0], name='Low (min value: %.4f)' % min(value_color), marker=dict(color=legend_color_low))
+
+    NUTS1 = dict(type='scattermapbox',
+                 lat=lats,
+                 lon=lons,
+                 mode='markers',
+                 text=labels_he_nut,
+                 marker=dict(size=1, color='r'),
+                 showlegend=False,
+                 hoverinfo='text'
+                 )
+    layers = [dict(sourcetype='geojson',
+                   source=sources[k],
+                   below="water",
+                   type='fill',
+                   color=facecolour[k],
+                   opacity=1
+                   ) for k in range(len(sources))]
+
+    layers_migration_lines = [dict(sourcetype='geojson',
+                                   source=sources_migration_lines[k],
+                                   type='line',
+                                   color='white',
+                                   opacity=0.5,
+                                   paint={'line-color': 'red', 'line-width': 1, 'line-dasharray': [2, 1]}
+                                   ) for k in range(len(sources_migration_lines))]
+
+    layout = dict(font=dict(family='Balto'),
+                  margin=go.layout.Margin(l=0, r=0, t=0, b=0),
+                  autosize=False,
+                  # width=WIDTH,
+                  # height=HEIGHT,
+                  showlegend=True,
+                  legend=dict(
+                      x=0,
+                      y=1,
+                      traceorder='normal',
+                      font=dict(
+                          family='sans-serif',
+                          size=12,
+                          color='#ffffff'
                       ),
-                      hovermode='closest',
-                      mapbox=dict(accesstoken=mapbox_access_token,
-                                  layers=layers + layers_migration_lines,
-                                  bearing=0,
-                                  center=dict(
-                                      lat=LATITUDE_INIT,
-                                      lon=LONGITUDE_INIT),
-                                  pitch=0,
-                                  zoom=4.9,
-                                  style=style
-                                  )
-                      )
-        latitude_list_selected = []
-        longitude_list_selected = []
-        selected_city = []
-        for city in selected:
-            if 'City of ' in city:
-                post_code = ''.join(city.split('City of ')[1].split(',')[0].split(' ')[-2:])
-            else:
-                post_code = ''.join(city.split(',')[0].split(' ')[-2:])
-            data_list = execute_sql_query('SELECT latitude, longitude FROM %s WHERE year="%s" AND pcstrip="%s"'
-                                          % ('final_data', year, post_code))
-            lat = data_list[0]['latitude']
-            long = data_list[0]['longitude']
-            latitude_list_selected.append(lat)
-            longitude_list_selected.append(long)
-            selected_city.append(city)
+                      bgcolor='rgb(50, 50, 50)' if style == 'dark' else 'rgb(128, 128, 128)',
+                      borderwidth=0
+                  ),
+                  hovermode='closest',
+                  mapbox=dict(accesstoken=mapbox_access_token,
+                              layers=layers + layers_migration_lines,
+                              bearing=0,
+                              center=dict(
+                                  lat=LATITUDE_INIT,
+                                  lon=LONGITUDE_INIT),
+                              pitch=0,
+                              zoom=4.9,
+                              style=style
+                              )
+                  )
+    latitude_list_selected = []
+    longitude_list_selected = []
+    selected_city = []
+    for city in selected:
+        if 'City of ' in city:
+            post_code = ''.join(city.split('City of ')[1].split(',')[0].split(' ')[-2:])
+        else:
+            post_code = ''.join(city.split(',')[0].split(' ')[-2:])
+        data_list = execute_sql_query('SELECT latitude, longitude FROM %s WHERE year="%s" AND pcstrip="%s"'
+                                      % ('final_data', year, post_code))
+        lat = data_list[0]['latitude']
+        long = data_list[0]['longitude']
+        latitude_list_selected.append(lat)
+        longitude_list_selected.append(long)
+        selected_city.append(city)
 
-        markers_selected_city = go.Scattermapbox(
-            lat=latitude_list_selected,
-            lon=longitude_list_selected,
-            showlegend=False,
-            mode='markers',
-            marker=go.scattermapbox.Marker(
-                symbol='marker',
-                size=MARKER_CITY_SELECTED_SIZE,
-                opacity=1
-            ),
-            text=selected_city,
-            name=''
-        )
+    markers_selected_city = go.Scattermapbox(
+        lat=latitude_list_selected,
+        lon=longitude_list_selected,
+        showlegend=False,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            symbol='marker',
+            size=MARKER_CITY_SELECTED_SIZE,
+            opacity=1
+        ),
+        text=selected_city,
+        name=''
+    )
 
-        markers_selected_dom = go.Scattermapbox(
-            lat=sources_migration_points_dom_lat,
-            lon=sources_migration_points_dom_long,
-            mode='markers',
-            marker=go.scattermapbox.Marker(
-                color='white',
-                size=10,
-                opacity=1
-            ),
-            text=domicile,
-            showlegend=False,
-            name=''
-        )
+    markers_selected_dom = go.Scattermapbox(
+        lat=sources_migration_points_dom_lat,
+        lon=sources_migration_points_dom_long,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            color='white',
+            size=10,
+            opacity=1
+        ),
+        text=domicile,
+        showlegend=False,
+        name=''
+    )
 
-        markers_selected_he = go.Scattermapbox(
-            lat=sources_migration_points_he_lat,
-            lon=sources_migration_points_he_long,
-            mode='markers',
-            marker=go.scattermapbox.Marker(
-                color='white',
-                size=numbers,
-                opacity=0.5
-            ),
-            text=labels_marker_he,
-            showlegend=False,
-            name=''
-        )
+    markers_selected_he = go.Scattermapbox(
+        lat=sources_migration_points_he_lat,
+        lon=sources_migration_points_he_long,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            color='white',
+            size=numbers,
+            opacity=0.5
+        ),
+        text=labels_marker_he,
+        showlegend=False,
+        name=''
+    )
 
-        fig = dict(data=[NUTS1, markers_selected_city, markers_selected_dom, markers_selected_he, trace0, trace1], layout=layout)
-        # if year == 2016:
-        #     fig = dict(data=[NUTS1, markers_selected_city, trace0, trace1], layout=layout)
-        # else:
-        #     fig = dict(data=[NUTS1, markers_selected_city], layout=layout)
+    fig = dict(data=[NUTS1, markers_selected_city, markers_selected_dom, markers_selected_he, trace0, trace1], layout=layout)
+    # if year == 2016:
+    #     fig = dict(data=[NUTS1, markers_selected_city, trace0, trace1], layout=layout)
+    # else:
+    #     fig = dict(data=[NUTS1, markers_selected_city], layout=layout)
 
     result = {'data': fig['data'], 'layout': layout}
     return result
@@ -1529,7 +1532,7 @@ app.title = 'Loneliness Data challenge'
 print("dash ccv %s" % dcc.__version__)
 print(sys.argv)
 db_server_name = "localhost"
-db_user = "axel"
+db_user = "root"
 db_password = "@2015"
 char_set = "utf8"
 cusror_type = pymysql.cursors.DictCursor
