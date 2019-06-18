@@ -2,11 +2,11 @@
 title: Does the movement of students to a different region of England for education associate with increased lonliness
   in their county of origin?
 output:
-  html_document:
-    code_folding: hide
+  pdf_document:
     toc: true
     number_sections: true
-  pdf_document:
+  html_document:
+    code_folding: hide
     toc: true
     number_sections: true
 ---
