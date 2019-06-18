@@ -2,20 +2,12 @@
 title: Does the movement of students to a different region of England for education associate with increased lonliness
   in their county  or region of origin?
 
-knitr: 
-  (function(inputFile, encoding) { 
-          rmarkdown::render(inputFile,
-                        encoding=encoding, 
-                        output_file='index.html')) })
-
 output:
   html_document:
     code_folding: hide
     toc: true
     number_sections: true
 
-    
-    
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +18,63 @@ library(scales)
 knitr::opts_chunk$set(fig.align = "center")
 ```
 
-# Introduction
+# Data visualisation
+This work was undertaken as part of a data challenge organised by the Jean Golding Institute for Data-Intensive Research at the University of Bristol and ONS.
+The team was made up of:
+
+  * Axel Montout
+  * Lucy Vass
+  * Luke McGuinness
+
+
+## Visualization of the data provided for the Loneliness data challenge.
+
+![_Screen capture of the visualization website._](visualization/figures/capture_global.png)
+
+In an attempt to better understand the data provided a visualization program displaying the geographic and time distrubution of the zscore provided was developped. The program takes form as a website accessible at the following web address <http://51.38.69.55/>.
+<br>
+<br>
+**The program is hosted on a low performance private server. Acces to this server provided by the link above is for basic demonstration purposes. For proprer use and user interaction the program should be hosted on an appropriate server.**
+<br>
+<br>
+The source code is available at https://github.com/mcguinlu/JGI-Comp/tree/master/visualization.
+
+This document explains the different features of the site.
+
+## Control panel
+Located in the upper section of the site the control panel allows to select what information will be displayed in the lower section.
+
+![](visualization/figures/control_panel.png)
+
+
+
+## Bar graph
+In the lower section on the right side is displayed the bar graph(s) representing the data of the cities selected in the control panel where one or multiple condition of interest can as well be selected. The x axis shows the year of the data collection. The y axis displays the zscore value(s) of the selected condition(s).    
+
+![_Bar graph for the city of Bristol and for the folowing conditions: loneliness, social anxiety, depression, addiction, insomnia, cardiovascular disease diabetes, hypertension, blood pressure, alzheimers._](visualization/figures/capture_bar_graph.png)
+
+
+## Map
+In the lower section on the left is displayed 3 maps. They each displays the data for one year. The available years are 2016, 2017 and 2018. The data for only one condition can be displayed at a time. Different visualization mode are available including choropleth map of the regions or counties in England which uses gradiant coloring of the location. In addition, Scatter map which distinguishes data using different colors and sizes of the data points.
+
+![_The figure above shows the loneliness zscore at every recorded location in 2017. The size of the dot is representative of the zcore value. A negative zscore is represented by a blue dot whereas a red dot represent a positive value. In this mode the raw data provided is displayed. Their is no alteration or processing of the data._ ](visualization/figures/capture_scatter_map.png)
+
+
+![_The figure above shows the Choropleth map of the loneliness zscore in England in 2017 at the regional level. In this representation the darker the color the higher the zcore. To find the zscore of a region the **average** of every  zscore reported by every center within the region is computed._](visualization/figures/capture_choropleth_r_map.png)
+
+![_The figure above shows the Choropleth map of the loneliness zscore in England in 2017 at the county level. In this representation the darker the color the higher the zcore. To find the zscore of a county the **average** of every  zscore reported by every center within the region is computed._](visualization/figures/capture_choropleth_c_map.png)
+
+## Student migration
+In order to visualize the migration of students from abroad to England the following dataset provided by HESA(Higher Education Statistics Agency) was used: https://www.hesa.ac.uk/data-and-analysis/students/table-11
+The dataset information on the number of students moving to each English region, the domicile of the students, as well as their mode and level of study between 2014 and 2018.
+
+![_The figure above shows the migration of all the students from Aberdeenshire to the different region in England for the 2016/2017 academic year._](visualization/figures/capture_choropleth_mig_map.png)
+
+
+Data visualization is an important step which allow a better understanding of any dataset before analysis. Here the data provided is displayed in different form such that a clear view of the data distribution in England is achieved.  
+
+
+# Analysis
 ## Research question
 
 In addition to our general visualsiation of the datasets provided by the JGI Data Competition and others sourced online [LINK TO AXEL'S VISUALISATION], we wanted to explore the hypothesis that students leaving their county to travel to a different region of the country for higher education might be associated with the lonliness score in at county.
