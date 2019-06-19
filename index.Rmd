@@ -57,6 +57,10 @@ The source code for the database generation and the visualization is available [
 
 The following section explains the different features of the site.
 
+## Database
+All of the data provided in a spreadsheet format and the external data used was transfered to a SQL data base.
+The database is composed of two tables. The 'final_data' table contains the provided data. While the 'student_migration' table contains the data on student migration provided by HESA (Higher Education Statistics Agency).
+
 ## Control panel
 Located in the upper section of the site the control panel allows to select what information will be displayed in the lower section.
 
