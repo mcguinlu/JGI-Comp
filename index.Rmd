@@ -598,12 +598,12 @@ As expected based on the results of the previous two analyses, there was little 
 
 ## Discussion
 ### Interpretation of results
-There was no evidence that outward migration for education at either the county or regional level had any effect on the mean loneliness score in the county or region. Similarly, there was no evidence for a relationship between total population change (sum of students moving into and out of a region) due to migration for education.
+There was no evidence that outward migration for education at either the county or regional level had any effect on the mean loneliness score in the county or region. Similarly, there was no evidence for a relationship between total population change (sum of students moving into and out of a region) due to migration for education in a region and the mean loneliness score for that region.
 
 ### Limitations of analyses
 
   * If the migration data had been presented at the district rather than county level, we would have been able to perform the analysis at the district rather than county level. This may have improved the ability of our analysis to detect a relationship between the two variables, if one exists.
-  * We used movement to another region of England as a proxy for a substantial distance between county/region of origin and location of the Higher Education provider so that students cannot easily/regularly return to their county of origin. This was made necessary by the data available, but may not represent a valid proxy - for example, a student living close to the border of two regions may attend a Higher Education provide in another region yet still live in their county of origin. A better approach might be to calculate the exact distance between county of origin and location of H.E. provider.
+  * We used movement to another region of England as a proxy for a substantial distance between county/region of origin and location of the Higher Education provider so that students cannot easily/regularly return to their county of origin. This was made necessary by the data available, but may not represent a valid proxy - for example, a student living close to the border of two regions may attend a Higher Education (H.E.) provide in another region yet still live in their county of origin. A better approach might be to calculate the exact distance between county of origin and location of H.E. provider.
   * We could have included potential confounders in the analysis to examine whether a true association between migration for education and loneliness is being masked. However, we struggled to identify any confounders that would bias the relationship towards the null.
   
 <br>
@@ -619,7 +619,7 @@ There was no evidence that outward migration for education at either the county 
 The Support Vector Algorithm (SVM) is used in an attempt to classify student data into three classes: "lonely", "neutral" or "not lonely". The result of the classifier would therefore be interpreted as the input data corresponding to a student who is likely to be lonely/not likely to be lonely knowing the domicile and the distance traveled between the domicile and the place of study.
 
 
-By mapping the loneliness score of the region in England to the student Higher Education provider location, training sets are created. They contain the longitude and latitude of the student, the distance (km) between the domicile and the H.E. provider and a binary representation of the loneliness z-score.
+By mapping the loneliness score of the region in England to the student H.E. provider location, training sets are created. They contain the longitude and latitude of the student, the distance (km) between the domicile and the H.E. provider and a binary representation of the loneliness z-score.
 
 The classes are defined as follow:
 <br>
