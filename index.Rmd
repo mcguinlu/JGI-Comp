@@ -27,17 +27,17 @@ This work was undertaken as part of the "_Movement of people for education and l
 
 The report is broken into three sections:
 
-  * [Section 1](#section1) decribes the data visualisation website we have created to allow us and other users to explore the data provided by the JGI.
-  * [Section 2](#section2) describes the data cleaning and analysis methods used to perform a simple linear regression analysis of the relationship between lonliness and movement/migration for education. 
+  * [Section 1](#section1) describes the data visualisation website we have created to allow us and other users to explore the data provided by the JGI.
+  * [Section 2](#section2) describes the data cleaning and analysis methods used to perform a simple linear regression analysis of the relationship between loneliness and movement/migration for education. 
   * [Section 3](#section3) takes the analysis a step further, using machine learning methods in an attempt to predict if loneliness is linked to the distance between a students domicile and place of study.
   
 The following people contributed to this report:
 
-  * Axel Montout, PhD Student, Bristol Vetinary School
-  * Lucy Vass, PhD Student, Bristol Vetinary School
+  * Axel Montout, PhD Student, Bristol Veterinary School
+  * Lucy Vass, PhD Student, Bristol Veterinary School
   * Luke McGuinness, PhD Student, Department of Population Health Sciences
   
-This report was written in RMarkdown. The .Rmd version can be found [here](https://github.com/mcguinlu/JGI-Comp/blob/master/index.Rmd).
+This report was written in R Markdown. The .Rmd version can be found [here](https://github.com/mcguinlu/JGI-Comp/blob/master/index.Rmd).
 
 <br>
 <br>
@@ -49,7 +49,7 @@ This report was written in RMarkdown. The .Rmd version can be found [here](https
 
 ![_Screen capture of the visualization website._](visualization/figures/capture_global.png)
 
-In an attempt to better understand the data provided a visualization program displaying the geographic and time distrubution of the zscore provided was developped. The program takes form as a website accessible at the following web address <http://51.38.69.55/>.
+In an attempt to better understand the data provided a visualization program displaying the geographic and time distribution of the z-score provided was developed. The program takes form as a website accessible at the following web address <http://51.38.69.55/>.
 
 **The program is hosted on a low performance private server. Acces to this server provided by the link above is for basic demonstration purposes. For proprer use and user interaction the program should be hosted on an appropriate server.**
 
@@ -65,7 +65,7 @@ Located in the upper section of the site the control panel allows to select what
 
 
 ## Bar graph
-In the lower section on the right side is displayed the bar graph(s) representing the data of the cities selected in the control panel where one or multiple condition of interest can as well be selected. The x-axis shows the year of the data collection. The y-axis displays the zscore value(s) of the selected condition(s).    
+In the lower section on the right side is displayed the bar graph(s) representing the data of the cities selected in the control panel where one or multiple condition of interest can as well be selected. The x-axis shows the year of the data collection. The y-axis displays the z-score value(s) of the selected condition(s).    
 
 ![_Bar graph for the city of Bristol and for the folowing conditions: loneliness, social anxiety, depression, addiction, insomnia, cardiovascular disease diabetes, hypertension, blood pressure, alzheimers._](visualization/figures/capture_bar_graph.png)
 
@@ -80,13 +80,13 @@ In the lower section on the left is displayed 3 maps. They each displays the dat
 ![_The figure above shows the Choropleth map of the loneliness zscore in England in 2017 at the county level. In this representation the darker the color the higher the zcore. To find the zscore of a county the **average** of every  zscore reported by every center within the region is computed._](visualization/figures/capture_choropleth_c_map.png)
 
 ## Student migration
-In order to visualize the migration of students from abroad to England the following dataset provided by HESA(Higher Education Statistics Agency) was used: https://www.hesa.ac.uk/data-and-analysis/students/table-11
-The dataset information on the number of students moving to each English region, the domicile of the students, as well as their mode and level of study between 2014 and 2018.
+In order to visualize the migration of students from abroad to England the following data-set provided by HESA(Higher Education Statistics Agency) was used: https://www.HESA.ac.UK/data-and-analysis/students/table-11
+The data-set information on the number of students moving to each English region, the domicile of the students, as well as their mode and level of study between 2014 and 2018.
 
 ![_The figure above shows the migration of all the students from Aberdeenshire to the different region in England for the 2016/2017 academic year._](visualization/figures/capture_choropleth_mig_map.png)
 
 
-Data visualization is an important step which allow a better understanding of any dataset before analysis. Here the data provided is displayed in different form such that a clear view of the data distribution in England is achieved.  
+Data visualization is an important step which allow a better understanding of any data-set before analysis. Here the data provided is displayed in different form such that a clear view of the data distribution in England is achieved.  
 
   
 <br>
@@ -101,7 +101,7 @@ Data visualization is an important step which allow a better understanding of an
 
 **_Question: Does the movement of students to a different region of England for education associate with increased lonliness in their county or region of origin?_**
 
-In addition to the general visualisation of the datasets provided by the JGI Data Competition and others sourced online in [Section 1](#section1), we wanted to explore the hypothesis that students leaving their county'region to travel to a different region of the country for higher education might be associated with the lonliness score in that county/region.
+In addition to the general visualisation of the data-sets provided by the JGI Data Competition and others sourced online in [Section 1](#section1), we wanted to explore the hypothesis that students leaving their county/region to travel to a different region of the country for higher education might be associated with the loneliness score in that county/region.
 
 We choose this question because we believe the effect of student migration on those left behind is often overlooked in terms of analysis/interventions, with the focus usually being placed on preventing loneliness in students arriving in a new location. 
 
@@ -109,10 +109,10 @@ We choose this question because we believe the effect of student migration on th
 
   1. Outward migration for education at the county level is associated with the mean loneliness score for that county.
   2. Outward migration for education at the regional level is associated with the mean loneliness score for that region.
-  3. Total student migration for edcuation (number of students leaving plus number of students arriving) at the regional level is associated with the mean loneliness score for that region.
+  3. Total student migration for education (number of students leaving plus number of students arriving) at the regional level is associated with the mean loneliness score for that region.
   
-### Code availalbilty
-**Note:** All code used wihtin this section is available for review. You can view the code by clicking the "Code"" button on the right hand side of the screen within a specific section. For example:
+### Code availability
+**Note:** All code used within this section is available for review. You can view the code by clicking the "Code"" button on the right hand side of the screen within a specific section. For example:
 
 ```{r}
 # This is a demonstration of how code is presented within this section! 
@@ -122,7 +122,7 @@ We choose this question because we believe the effect of student migration on th
 
 ## Datasets
 
-The datasets used in this analysis are laid out below, and where appropriate, a link to their source is provided. For familiarity, the first few rows of each datasets are presented.
+The data-sets used in this analysis are laid out below, and where appropriate, a link to their source is provided. For familiarity, the first few rows of each data-sets are presented.
 
 <br>
 
@@ -138,7 +138,7 @@ knitr::kable(head(data.lonliness))
 <br>
 
 ### Student migration for education dataset {#student-migration-data}
-Sourced from the [HESA website](https://www.hesa.ac.uk/data-and-analysis/students/where-from), this dataset describes the number of students moving to each region from a given domicile/town.
+Sourced from the [HESA website](https://www.hesa.ac.uk/data-and-analysis/students/where-from), this data-set describes the number of students moving to each region from a given domicile/town.
 
 ```{r, echo =FALSE}
 data.move <- read.csv("data/Movement data.csv", header = FALSE)
@@ -156,7 +156,7 @@ knitr::kable(head(data.move))
 <br>
 
 ### Town/County/County List {#town-county-data}
-Sourced from [here](https://www.paulstenning.com/uk-towns-and-counties-list/), this dataset matches town names to their respective counties and countries.
+Sourced from [here](https://www.paulstenning.com/uk-towns-and-counties-list/), this data-set matches town names to their respective counties and countries.
 
 ```{r, echo =FALSE}
 town.county <- read.csv("data/Towns_List.csv")
@@ -166,7 +166,7 @@ knitr::kable(head(town.county))
 <br>
 
 ### County/Region List {#county-region-data}
-Sourced from [here](https://wiki.freecycle.org/UK_Counties_and_Regions), this dataset matches counties to their respective regions.
+Sourced from [here](https://wiki.freecycle.org/UK_Counties_and_Regions), this data-set matches counties to their respective regions.
 
 ```{r, echo =FALSE}
 county.region <- read.csv("data/county.region.csv", stringsAsFactors=FALSE, header = TRUE)
@@ -177,7 +177,7 @@ knitr::kable(head(county.region))
 <br>
 
 ### District/County List {#district-county-data}
-Sourced from [here](https://en.wikipedia.org/wiki/List_of_English_districts), this dataset matches districts to their respective counties.
+Sourced from [here](https://en.wikipedia.org/wiki/List_of_English_districts), this data-set matches districts to their respective counties.
 
 ```{r, echo =FALSE}
 district.county <- read.csv("data/district-county.csv", stringsAsFactors=FALSE, header = TRUE)
@@ -193,7 +193,7 @@ knitr::kable(head(district.county))
 ## Preparation for analysis
 ### Create the combined towns, counties and regions dataset {#town-county-region}
 
-To create a single dataset which matched towns to their respective counties and regions, we merged datasets [3](#town-county-data) & [4](#county-region-data), on the basis of county name. We also removed country information after limiting the new dataset to towns/counties/regions in England.
+To create a single data-set which matched towns to their respective counties and regions, we merged data-sets [3](#town-county-data) & [4](#county-region-data), on the basis of county name. We also removed country information after limiting the new data-set to towns/counties/regions in England.
 
 ```{r town.county.region list, e}
 # Import town.county list, and limit to towns in England
@@ -218,7 +218,7 @@ knitr::kable(head(town.county.region.head), caption = "Top six rows of the town.
 
 ### Creating complete migration dataset {#new-migration-dataset}
 
-In order to prepare for later analyses, we added county and region information to the HESA data, using the newly created dataset in [Section 2.3.1](#town-county-region) above. The first few lines of the resulting dataset are presented below.
+In order to prepare for later analyses, we added county and region information to the HESA data, using the newly created data-set in [Section 2.3.1](#town-county-region) above. The first few lines of the resulting data-set are presented below.
 
 ```{r}
 # Read in HESA student migration
@@ -253,9 +253,9 @@ knitr::kable(head(countydata.head), caption = "Top six rows of the movement for 
 
 ### Handling dates
 
-We ran into issues around how to convert the academic year (used in the student migration [data](#student-migration-data)) to the calendar year (used in the lonliness index [data](#lonliness-score-data)).
+We ran into issues around how to convert the academic year (used in the student migration [data](#student-migration-data)) to the calendar year (used in the loneliness index [data](#lonliness-score-data)).
 
-We decided to assign the full effect of migration in a given academic year to it's earliest calendar year, on the basis that the effect of student migration on lonliness is likely to be most acute in the months immediately after their departure. As an example, the 2014/2015 academic year was recoded as 2014.
+We decided to assign the full effect of migration in a given academic year to it's earliest calendar year, on the basis that the effect of student migration on loneliness is likely to be most acute in the months immediately after their departure. As an example, the 2014/2015 academic year was re-coded as 2014.
 
 However, taking this approach meant that there was mismatch between the student migration data (2014 to 2017) and the loneliness score data (2016 to 2018). As a result, all subsequent analysis are limited to the two years where data was available from both sources: 2016 and 2017.
 
@@ -272,10 +272,10 @@ countydata <- countydata %>%
 
 ### Creating outward migration for education figure at the county level
 
-In keeping with our research question, to prepare the dataset to examine the effect on lonelinenss within a county of students moving out of the county to study, we:
+In keeping with our research question, to prepare the data-set to examine the effect on loneliness within a county of students moving out of the county to study, we:
 
   * Removed the totals rows to prevent double counting
-  * Removed students enrolled in The Open university, as this is primarily a distance learning insitution, and so students would not have to travel to attend this institution. 
+  * Removed students enrolled in The Open university, as this is primarily a distance learning institution, and so students would not have to travel to attend this institution. 
   * Removed students those whose institution was in the same region which they came from. This was used as a proxy for a substantial distance between home county and university.
 
 ```{r}
@@ -342,7 +342,7 @@ ggplot(data.outof.region.plot, aes(x = reorder(Region, no.out), y=no.out)) +
 ### Total change in population (inward + outward movement) per region due to migration for education
 To address our final hypothesis, we created a total migration for education figure (number of students leaving the region plus number of students arriving in the region) per region. 
 
-We created a summative rather than net migration for education per region figure on the basis that having students moving into a region is more likely to increase lonliness than reduce it, as they will not simply replace the students who left in terms of social contacts, plus they might possibly be homesick/lonely themselves.
+We created a assumptive rather than net migration for education per region figure on the basis that having students moving into a region is more likely to increase loneliness than reduce it, as they will not simply replace the students who left in terms of social contacts, plus they might possibly be homesick/lonely themselves.
 
 ```{r }
 # Limit dataset to those travelling to HE provider within England
@@ -419,7 +419,7 @@ data.sum.migration <- data.sum.migration %>%
 
 ### Add county and regional data to loneliness dataset
 
-The final element of pre-analysis preaparation involved adding county and regional data to the loneliness [data](#lonliness-score-data). This was complicated by the fact that the lonliness dataset presented the loneliness score per district rather than per county. We used the District/County [dataset](#district-county-data) to map districts to their corresponding counties, and subsequently added regional information aswell.
+The final element of pre-analysis preparation involved adding county and regional data to the loneliness [data](#lonliness-score-data). This was complicated by the fact that the loneliness data-set presented the loneliness score per district rather than per county. We used the District/County [dataset](#district-county-data) to map districts to their corresponding counties, and subsequently added regional information as well.
 
 ``` {r}
 data.lonliness <- read.csv("data/msoa_loneliness.csv")
@@ -524,7 +524,7 @@ out.county.p.2017 <- (summary(out.county.linearMod.2017)$coefficients[,4])[2]
 
 The correlation coefficients for 2016 and 2017 were `r cor(move.lonliness.county.2016$mean.score, move.lonliness.county.2016$sum.no) ` and  `r cor(move.lonliness.county.2017$mean.score, move.lonliness.county.2017$sum.no) ` respectively, indicating low correlation between the migration for education at the county level and mean loneliness score for that county in either year.
 
-This was supported by further analyes. Linear regression showed poor evidence for an association between mean loneliness score per county and the number of students who have left that county for education reasons (Hypothesis 1). The regression coefficient for 2016 was `r coef(out.county.linearMod.2016)[2]` (p=`r out.county.p.2016`)  and for 2017 was `r coef(out.county.linearMod.2017)[2]` (p=`r out.county.p.2017`).
+This was supported by further analyses. Linear regression showed poor evidence for an association between mean loneliness score per county and the number of students who have left that county for education reasons (Hypothesis 1). The regression coefficient for 2016 was `r coef(out.county.linearMod.2016)[2]` (p=`r out.county.p.2016`)  and for 2017 was `r coef(out.county.linearMod.2017)[2]` (p=`r out.county.p.2017`).
 
 ### Association of number of students leaving region (England only) and mean loneliness score for that region
 ```{r}
@@ -592,13 +592,13 @@ As expected based on the results of the previous two analyses, there was little 
 
 ## Discussion
 ### Interpretation of results
-There was no evidence that outward migration for education at either the county or regional level had any effect on the mean loneliness score in the county or region. Similarly, there was no evidence for a relationship between totoal population change (sum of students moving into and out of a region) due to migration for education.
+There was no evidence that outward migration for education at either the county or regional level had any effect on the mean loneliness score in the county or region. Similarly, there was no evidence for a relationship between total population change (sum of students moving into and out of a region) due to migration for education.
 
 ### Limitations of analyses
 
-  * If the migration data had been presented at the district rather than county level, we would have been able to perform the analysis at the district rather than county level. This may have impoved the ability of our analysis to detect a relationship between the two variables, if one exists.
+  * If the migration data had been presented at the district rather than county level, we would have been able to perform the analysis at the district rather than county level. This may have improved the ability of our analysis to detect a relationship between the two variables, if one exists.
   * We used movement to another region of England as a proxy for a substantial distance between county/region of origin and location of the Higher Education provider so that students cannot easily/regularly return to their county of origin. This was made necessary by the data available, but may not represent a valid proxy - for example, a student living close to the border of two regions may attend a Higher Education provide in another region yet still live in their county of origin. A better approach might be to calculate the exact distance between county of origin and location of H.E. provider.
-  * We could have included potential confounders in the analysis to examine whether a true asssociation between migration for education and lonelines is being masked. However, we stuggled to identify any confounders that would bias the relationship towards the null.
+  * We could have included potential confounders in the analysis to examine whether a true association between migration for education and loneliness is being masked. However, we struggled to identify any confounders that would bias the relationship towards the null.
   
 <br>
 <br>
@@ -610,34 +610,34 @@ There was no evidence that outward migration for education at either the county 
 **_Is the loneliness of students linked to the distance between their domicile and place of study?_**
 
 ## Methods
-The Support Vector Algorithm (SVM) is used in an attempt to classify student data into three classes: "lonely", "neutral" or "not lonely". The result of the classifier would therefore be interpreted as the input data corresponding to a student who is likely to be lonely/not likely to be lonely knowing the domicile and the distance travelled between the domicile and the place of study.
+The Support Vector Algorithm (SVM) is used in an attempt to classify student data into three classes: "lonely", "neutral" or "not lonely". The result of the classifier would therefore be interpreted as the input data corresponding to a student who is likely to be lonely/not likely to be lonely knowing the domicile and the distance traveled between the domicile and the place of study.
 
 
-By mapping the loneliness score of the region in England to the student Higher Education provider location, training sets are created. They contain the longitude and latitude of the student, the distance (km) between the domicile and the H.E. provider and a binary representation of the loneliness zscore.
+By mapping the loneliness score of the region in England to the student Higher Education provider location, training sets are created. They contain the longitude and latitude of the student, the distance (km) between the domicile and the H.E. provider and a binary representation of the loneliness z-score.
 
 The classes are defined as follow:
 <br>
- - class 0: region loneliness zscore <= 0
+ - class 0: region loneliness z-score <= 0
  <br>
-  - class 1: 0 < region loneliness zscore < 1
+  - class 1: 0 < region loneliness z-score < 1
  <br>
- - class 2: region loneliness zscore >= 1
+ - class 2: region loneliness z-score >= 1
  <br>
  
  ![_Subset of trainning dataset._](ml/figures/capture_ml_input.png)
  
  
- The Linear Discriminant Analysis (LDA) technique allows to reduce the 3 dimentions( distance travelled, domicile latitude, domicile longitude) data set in a 2D space which can be visualized. 
+ The Linear Discriminant Analysis (LDA) technique allows to reduce the 3 dimensions( distance traveled, domicile latitude, domicile longitude) data set in a 2D space which can be visualized. 
  
   ![_2D LDA projection of the trainning sets._](ml/figures/lda.png)
   
   
 ## Results
 <br>
-Testing and visualization of the data reveals that the features used in the input, namely, the distance travelled, the domicile latitude and longitude do not describe how lonely a student may be. However the input data lack of resolution in the sense that it only takes into consideration the loneliness z-score of the region in England which induce very large amount of bias. Indeed the visualization tool developed shows that the z-score of the counties in England is highly variable. More importantly the distance travelled is not accurate as the exact location of study is not known, only the region of study is known in the data provided by HESA (Higher Education Statistics Agency) https://www.hesa.ac.uk/data-and-analysis/students/table-11.
+Testing and visualization of the data reveals that the features used in the input, namely, the distance traveled, the domicile latitude and longitude do not describe how lonely a student may be. However the input data lack of resolution in the sense that it only takes into consideration the loneliness z-score of the region in England which induce very large amount of bias. Indeed the visualization tool developed shows that the z-score of the counties in England is highly variable. More importantly the distance traveled is not accurate as the exact location of study is not known, only the region of study is known in the data provided by HESA (Higher Education Statistics Agency) https://www.HESA.ac.UK/data-and-analysis/students/table-11.
 <br>
 Further work would include a repeat of the experiment with data containing the exact migration of the students. The impact of features such as the level of study and mode of study should be explored too. 
 
   
-The source code for the trainning set generation and the classifier can be found [here]( https://github.com/mcguinlu/JGI-Comp/tree/master/ml).
+The source code for the training set generation and the classifier can be found [here]( https://github.com/mcguinlu/JGI-Comp/tree/master/ml).
   
