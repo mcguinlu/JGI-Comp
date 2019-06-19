@@ -381,9 +381,13 @@ data.into.region <- filter(countydata.trimmed.in, X4.way.domicile == "All", Leve
 
 colnames(data.into.region)[2] <- "Region"
 
-# Filter data to 2016
-data.into.region.plot <- data.into.region[which(data.outof.region$Academic.Year=="2016" | data.outof.region$Academic.Year=="2017"),]
+# Create dataframe of total population chance due to migration
+data.sum.migration <- merge(data.into.region, data.outof.region)
 
+data.sum.migration <- data.sum.migration %>%
+  mutate(no.total = no.in + no.out)
+
+# Filter data to 2016/2017
 fig2.data.1 <- data.into.region[which(data.outof.region$Academic.Year=="2016" | data.outof.region$Academic.Year=="2017"),]
 fig2.data.1[4] <- "Inwards"
 colnames(fig2.data.1)[4] <- "Direction"
@@ -409,11 +413,7 @@ ggplot(fig2.data, aes(x = reorder(Region,No), y= No, fill = Direction)) +
         legend.position="bottom",
         plot.title = element_text(hjust = 0.5))
 
-# Create dataframe of total population chance due to migration
-data.sum.migration <- merge(data.into.region, data.outof.region)
 
-data.sum.migration <- data.sum.migration %>%
-  mutate(no.total = no.in + no.out)
 
 ```
 
@@ -514,9 +514,11 @@ ggplot(move.lonliness.county, aes(x=sum.no,y=mean.score))+
 move.lonliness.county.2016 <- move.lonliness.county[which(move.lonliness.county$Academic.Year == 2016),]
 move.lonliness.county.2017 <- move.lonliness.county[which(move.lonliness.county$Academic.Year == 2017),]
 
+# Create regression models 
 out.county.linearMod.2016 <- lm(mean.score ~ sum.no, data=move.lonliness.county.2016)
 out.county.linearMod.2017 <- lm(mean.score ~ sum.no, data=move.lonliness.county.2017)
 
+# Extract p-values
 out.county.p.2016 <- (summary(out.county.linearMod.2016)$coefficients[,4])[2]
 out.county.p.2017 <- (summary(out.county.linearMod.2017)$coefficients[,4])[2]
 
@@ -552,9 +554,11 @@ ggplot(out.move.lonliness.region, aes(x=no.out,y=mean.score)) +
 out.move.lonliness.region.2016 <- out.move.lonliness.region[which(out.move.lonliness.region$Academic.Year == 2016),]
 out.move.lonliness.region.2017 <- out.move.lonliness.region[which(out.move.lonliness.region$Academic.Year == 2017),]
 
+# Create regession models 
 out.linearMod.2016 <- lm(mean.score ~ no.out, data=out.move.lonliness.region.2016)
 out.linearMod.2017 <- lm(mean.score ~ no.out, data=out.move.lonliness.region.2017)
-                         
+             
+# Extract p-values            
 out.p.2016 <- (summary(out.linearMod.2016)$coefficients[,4])[2]
 out.p.2017 <- (summary(out.linearMod.2017)$coefficients[,4])[2]
 
@@ -581,9 +585,11 @@ ggplot(total.move.lonliness.region, aes(x=no.total,y=mean.score)) +
 total.move.lonliness.region.2016 <- total.move.lonliness.region[which(total.move.lonliness.region$Academic.Year == 2016),]
 total.move.lonliness.region.2017 <- total.move.lonliness.region[which(total.move.lonliness.region$Academic.Year == 2017),]
 
+# Create regression models
 total.linearMod.2016 <- lm(mean.score ~ no.total, data=total.move.lonliness.region.2016)
 total.linearMod.2017 <- lm(mean.score ~ no.total, data=total.move.lonliness.region.2017)
-                         
+
+# Extract p-values                         
 total.p.2016 <- (summary(total.linearMod.2016)$coefficients[,4])[2]
 total.p.2017 <- (summary(total.linearMod.2017)$coefficients[,4])[2]
 ```
