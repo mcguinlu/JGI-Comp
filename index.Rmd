@@ -112,7 +112,7 @@ We choose this question because we believe the effect of student migration on th
   3. Total student migration for education (number of students leaving plus number of students arriving) at the regional level is associated with the mean loneliness score for that region.
   
 ### Code availability
-**Note:** All code used within this section is available for review. You can view the code by clicking the "Code"" button on the right hand side of the screen within a specific section. For example:
+**Note:** All code used within this section is available for review. You can view it by clicking the "Code"" button on the right hand side of the screen within a specific sub-section. For example:
 
 ```{r}
 # This is a demonstration of how code is presented within this section! 
