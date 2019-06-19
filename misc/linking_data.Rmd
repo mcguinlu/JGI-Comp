@@ -1,0 +1,211 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+
+
+data_path <- "C:/Users/lv13916/OneDrive - University of Bristol/Documents/PhD/jgi lonliness comp"
+setwd(data_path)
+```
+
+```{r}
+# Read in postcodes data - 163 unis in list
+uni_postcodes_original <- read.csv("uni_postcodes.csv", sep = ",")
+postcode_area <- str_split(as.character(uni_postcodes_original$postcode), " ", n = 2,  simplify = TRUE)[ , 1]
+uni_postcodes_original <- cbind(uni_postcodes_original,postcode_area) 
+
+# Read in HESA data
+hesa_1415_original <- read.csv("hesa_by_uni_1415.csv", sep = ",")
+hesa_1516_original <- read.csv("hesa_by_uni_1516.csv", sep = ",")
+hesa_1617_original <- read.csv("hesa_by_uni_1617.csv", sep = ",")
+hesa_1718_original <- read.csv("hesa_by_uni_1718.csv", sep = ",")
+
+hesa_1415_edit <- hesa_1415_original %>%
+  mutate(uni_name = as.character(HE.provider),
+         hesa_name = as.character(HE.provider))
+
+
+# Tidying and shortening names of univerisities to aid matching
+hesa_1415 <- hesa_1415_edit %>%
+  mutate(uni_name_shortened = str_to_lower(uni_name),
+         uni_name_shortened = gsub("university", "", uni_name_shortened),
+         uni_name_shortened = gsub("(institutes and activities)", "", uni_name_shortened),
+         uni_name_shortened = gsub(" of ", " ", uni_name_shortened),
+         uni_name_shortened = gsub("the ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(" & ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(" and ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(",", "", uni_name_shortened),
+         uni_name_shortened = gsub(" for ", " ", uni_name_shortened),
+         uni_name_shortened = str_trim(uni_name_shortened, side = "both")) %>%
+  select(uni_name, uni_name_shortened)
+
+uni_postcodes <-  uni_postcodes_original %>%
+  mutate(uni_name_shortened = str_to_lower(uni_name),
+         uni_name_shortened = gsub("university", "", uni_name_shortened),
+         uni_name_shortened = gsub(" of ", " ", uni_name_shortened),
+         uni_name_shortened = gsub("the ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(" & ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(" and ", " ", uni_name_shortened),
+         uni_name_shortened = gsub(",", "", uni_name_shortened),
+         uni_name_shortened = gsub(" for ", " ", uni_name_shortened),
+         uni_name_shortened = str_trim(uni_name_shortened, side = "both")) %>%
+  select(uni_name, uni_name_shortened)
+
+# Using 'stringdist_join' function from fuzzyjoin package to match univerisity names and produce a distance metric
+  # Arrange by distance metric and chose best match bested on distance metric
+library(fuzzyjoin)
+matched_uni_names <- stringdist_join(hesa_1415, uni_postcodes, 
+                by = "uni_name_shortened",
+                mode = "left",
+                ignore_case = FALSE, 
+                method = "jw", 
+                max_dist = 99, 
+                distance_col = "dist") %>%
+  group_by(uni_name_shortened.x) %>%
+  top_n(1, -dist) %>%
+  arrange(desc(dist)) %>%
+  ungroup()
+
+# Matching univerisity names based on:
+  #identical character match
+  #distance < 0.2 (0 distance = exact match, 1 = no match)
+  #number of words in name (one word matches without 100% similarity are not allowed)
+  #one word matches of 'london' as there are many univerisities in London 
+matched_uni_names <- matched_uni_names %>%
+  mutate(match = ifelse(str_detect(as.character(uni_name_shortened.x), as.character(uni_name_shortened.y)), 1, 0)) %>%
+  arrange(dist) %>%
+  mutate(num_words_x = str_count(uni_name_shortened.x, '\\w+'),
+         num_words_y = str_count(uni_name_shortened.y, '\\w+')) %>%
+  mutate(match = ifelse(match == 0 & dist < 0.2 & num_words_x != 1 & num_words_y != 1, 1, match),
+         match = ifelse(uni_name_shortened.y == "london", 0, match))
+
+# Finding successful matches
+success_table <- matched_uni_names %>%
+  filter(match == 1)
+
+matched_names_table <- success_table %>%
+  rename("hesa_name" = "uni_name.x", "postcodes_name" = "uni_name.y") %>%
+  select(hesa_name, postcodes_name)
+
+# Reading in a list of manually created synonyms - 8 names only
+manual_syn_names <- read.csv("synonymous_uninames.csv", sep = ",", header = F)
+
+manual_syn_names <- manual_syn_names %>%
+  rename("hesa_name" = "V2", "postcodes_name" = "V1")
+
+# adding manually created matches to auto created matches 
+matched_names_table <- rbind(manual_syn_names, matched_names_table)
+
+# Results:
+# 10 universities in postcode data aren't in HESA data
+dim(uni_postcodes %>%
+      filter(!as.character(uni_name) %in%c(as.character(matched_names_table$postcodes_name))))[1]
+
+# 40 universities in postcode data aren't in HESA data - this includes Scottish, Welsh and NI univerisities 
+dim(hesa_1415 %>%
+      filter(!as.character(uni_name) %in%c(as.character(matched_names_table$hesa_name))))[1]
+
+# 127 universities can be used
+dim(matched_names_table)[1]
+
+# using this matched table to join up the 2 datasets
+matched_names_table <- matched_names_table %>%
+  rename("uni_name" = "postcodes_name")
+
+# joining all hesa data form the 4 seperate csv files
+hesa_1418 <- rbind(hesa_1415_original[1:13] %>%
+  mutate(year = 2014),
+  hesa_1516_original %>%
+    mutate(year = 2015),
+  hesa_1617_original %>%
+    mutate(year = 2016),
+  hesa_1718_original %>%
+    mutate(year = 2017)) %>%
+  mutate(hesa_name = HE.provider)
+
+# joining postcodes
+hesa_1418 <- uni_postcodes_original %>%
+  inner_join(matched_names_table, by= "uni_name") %>%
+  inner_join(hesa_1418, by = "hesa_name")
+
+names(hesa_1418) <- str_to_lower(names(hesa_1418))
+
+hesa_1418
+
+
+
+```
+
+```{r}
+hesa_postcode_list <- unique(hesa_1418$postcode_area)
+hesa_postcode_list <- tibble(postcode_area = as.factor(c(as.character(hesa_postcode_list))))
+
+postcode_lat_long_orignal <- read.csv("postcode_lat_long.csv", sep = ",")
+
+postcode_area_list <- str_split(as.character(postcode_lat_long_orignal$postcode), " ", n = 2,  simplify = TRUE)[ , 1]
+
+postcode_lat_long <- postcode_lat_long_orignal %>%
+  mutate(postcode_area = postcode_area_list) %>%
+  select(-id, -postcode) %>%
+  group_by(postcode_area) %>%
+  summarise(lat = mean(latitude, na.rm = T),
+            long = mean(longitude, na.rm = T)) %>%
+  ungroup()
+  
+postcode_lat_long <- postcode_lat_long %>%
+  mutate(postcode_city = str_extract(postcode_area, "[A-Z]{1,2}"))
+  
+hesa_postcode_list <- hesa_postcode_list %>%
+  inner_join(postcode_lat_long, by = "postcode_area")
+
+# finding all postcode areas within 5km
+hesa_postcode_list
+```
+
+
+
+```{r}
+a <- data.frame(name = c('Ace Co', 'Bayes', 'asd', 'Bcy', 'Baes', 'Bays'),
+                price = c(10, 13, 2, 1, 15, 1))
+b <- data.frame(name = c('Ace Co.', 'Bayes Inc.', 'asdf'),
+                qty = c(9, 99, 10))
+
+
+stringdist_join(a, b, 
+                by = "name",
+                mode = "left",
+                ignore_case = FALSE, 
+                method = "jw", 
+                max_dist = 99, 
+                distance_col = "dist") %>%
+  group_by(name.x) %>%
+  top_n(1, -dist)
+
+```
+
+
+
+
+```{python}
+import pandas as pd
+df = pd.read_csv('uni_postcodes.csv', sep=',',header=0)
+pd.DataFrame.head(df)
+
+```
+
+### Match names of unis in HESA data to those in UK postcodes
+```{python}
+from fuzzywuzzy import fuzz
+Str1 = "Apple Inc."
+Str2 = "apple Inc"
+Ratio = fuzz.ratio(Str1.lower(),Str2.lower())
+print(Ratio)
+```
+
